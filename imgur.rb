@@ -1,15 +1,20 @@
 #!/usr/bin/env ruby
 
-require 'httparty'
+require 'httmultiparty'
 require 'clipboard'
 
 CLIENT_ID = 'c3d5102cafbba4c'
 FILENAME  = ENV['HOME'] + '/imgur.png'
 
+class Imgur
+  include HTTMultiParty
+  base_uri 'https://api.imgur.com'
+end
+
 def upload_image
-  response = HTTParty.post 'https://api.imgur.com/3/upload.json',
+  response = Imgur.post '/3/upload.json',
     :headers => { 'Authorization' => "Client-ID #{CLIENT_ID}" },
-    :body    => { 'image' => Base64.encode64(File.read(FILENAME)) }
+    :body    => { 'image' => File.new(FILENAME) }
 
   response['data']['link']
 end

@@ -1,13 +1,18 @@
 #!/usr/bin/env ruby
 
-require 'httparty'
 require 'json'
 require 'clipboard'
+require 'httmultiparty'
 
 CLIENT_ID     = 'xxxxxxxxxxxxxxx'
 CLIENT_SECRET = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 TOKEN_FILE    = ENV['HOME'] + '/.imgur_token'
 FILENAME      = ENV['HOME'] + '/imgur.png'
+
+class Imgur
+  include HTTMultiParty
+  base_uri 'https://api.imgur.com'
+end
 
 def auth_app
   puts 'Follow the link to allow the application access to your account and enter the pin'
@@ -16,7 +21,7 @@ def auth_app
   print 'Pin: '
   pin = gets.chomp
 
-  response = HTTParty.post 'https://api.imgur.com/oauth2/token',
+  response = Imgur.post '/oauth2/token',
     :body => {
       'client_id'     => CLIENT_ID,
       'client_secret' => CLIENT_SECRET,
@@ -33,7 +38,7 @@ def auth_app
 end
 
 def refresh_token(refresh_token)
-  response = HTTParty.post 'https://api.imgur.com/oauth2/token',
+  response = Imgur.post '/oauth2/token',
     :body => {
       'refresh_token' => refresh_token,
       'client_id'     => CLIENT_ID,
@@ -44,9 +49,9 @@ def refresh_token(refresh_token)
 end
 
 def upload_image(access_token)
-  response = HTTParty.post 'https://api.imgur.com/3/upload.json',
+  response = Imgur.post '/3/upload.json',
     :headers => { 'Authorization' => "Bearer #{access_token}" },
-    :body    => { 'image' => Base64.encode64(File.read(FILENAME)) }
+    :body    => { 'image' => File.new(FILENAME) }
 
   response['data']['link']
 end
