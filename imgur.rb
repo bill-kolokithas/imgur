@@ -1,26 +1,24 @@
 #!/usr/bin/env ruby
 
-require 'httmultiparty'
+require 'curb'
+require 'json'
 require 'clipboard'
 
 CLIENT_ID = 'c3d5102cafbba4c'
 
-class Imgur
-  include HTTMultiParty
-  base_uri 'https://api.imgur.com'
-end
+def upload_image(image)
+  imgur = Curl::Easy.new "https://api.imgur.com/3/upload.json"
+  imgur.multipart_form_post = true
+  imgur.headers['Authorization'] = "Client-ID #{CLIENT_ID}"
+  imgur.http_post(Curl::PostField.file('image', image))
 
-def upload_image
-  response = Imgur.post '/3/upload.json',
-    headers: { 'Authorization' => "Client-ID #{CLIENT_ID}" },
-    body:    { 'image'         => File.new(FILENAME) }
-
+  response = JSON.parse(imgur.body_str) 
   response['data']['link']
 end
 
 abort 'scrot not found' unless system("scrot #{ARGV[0]} #{ARGV[1]}")
 
-link = upload_image
+link = upload_image(ARGV[0])
 if link
   Clipboard.copy link
   system('notify-send -t 2000 "Upload complete"')

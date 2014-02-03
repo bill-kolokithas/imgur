@@ -1,17 +1,12 @@
 #!/usr/bin/env ruby
 
+require 'curb'
 require 'json'
 require 'clipboard'
-require 'httmultiparty'
 
 CLIENT_ID     = 'xxxxxxxxxxxxxxx'
 CLIENT_SECRET = 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 TOKEN_FILE    = ENV['HOME'] + '/.imgur_token'
-
-class Imgur
-  include HTTMultiParty
-  base_uri 'https://api.imgur.com'
-end
 
 def auth_app
   puts 'Follow the link to allow the application access to your account and enter the pin'
@@ -20,14 +15,14 @@ def auth_app
   print 'Pin: '
   pin = STDIN.gets.chomp
 
-  response = Imgur.post '/oauth2/token',
-    body: {
-      client_id:     CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      grant_type:    :pin,
-      pin:           pin
-    }
+  imgur = Curl.post "https://api.imgur.com/oauth2/token", {
+    client_id:     CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    grant_type:    :pin,
+    pin:           pin
+  }
 
+  response = JSON.parse(imgur.body_str)
   abort 'Authorization failed' unless response['access_token']
   tokens = {
     'access_token'  => response['access_token'],
@@ -39,22 +34,24 @@ def auth_app
 end
 
 def refresh_token(refresh_token)
-  response = Imgur.post '/oauth2/token',
-    body: {
-      refresh_token: refresh_token,
-      client_id:     CLIENT_ID,
-      client_secret: CLIENT_SECRET,
-      grant_type:    :refresh_token
-    }
+  imgur = Curl.post "https://api.imgur.com/oauth2/token", {
+    refresh_token: refresh_token,
+    client_id:     CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    grant_type:    :refresh_token
+  }
 
+  response = JSON.parse(imgur.body_str)
   response['access_token']
 end
 
 def upload_image(image, access_token)
-  response = Imgur.post '/3/upload.json',
-    headers: { 'Authorization' => "Bearer #{access_token}" },
-    body:    { 'image'         => File.new(image) }
+  imgur = Curl::Easy.new "https://api.imgur.com/3/upload.json"
+  imgur.multipart_form_post = true
+  imgur.headers['Authorization'] = "Bearer #{access_token}"
+  imgur.http_post(Curl::PostField.file('image', image))
 
+  response = JSON.parse(imgur.body_str)
   response['data']['link']
 end
 
