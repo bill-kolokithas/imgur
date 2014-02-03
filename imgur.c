@@ -4,9 +4,8 @@
 #include <sys/wait.h>
 #include <curl/curl.h>
 
-#define IMGTOOL "scrot"
 #define CLIENT_ID "c3d5102cafbba4c"
-#define CMDLEN 128
+#define CMDLEN 256
 
 typedef struct {
 	char *buffer;
@@ -40,11 +39,11 @@ int main(int argc, char *argv[]) {
 	int status, n;
 
 	if (argc == 2)
-		n = snprintf(cmd, CMDLEN, "%s %s", IMGTOOL, argv[1]);
+		n = snprintf(cmd, CMDLEN, "scrot %s", argv[1]);
 	else if (argc == 3)
-		n = snprintf(cmd, CMDLEN, "%s %s %s", IMGTOOL, argv[1], argv[2]);
+		n = snprintf(cmd, CMDLEN, "scrot %s %s", argv[1], argv[2]);
 	else {
-		fprintf(stderr, "Usage: %s <path/to/file.(png|jpg)> <external tool flag>\n", argv[0]);
+		fprintf(stderr, "Usage: %s <path/to/file.(png|jpg)> [scrot extra flag]\n", argv[0]);
 		return EXIT_FAILURE;
 	}
 
