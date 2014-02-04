@@ -92,8 +92,8 @@ int main(int argc, char *argv[]) {
 	status = system(cmd);
 	if (WEXITSTATUS(status) == 127)
 		fputs(url, stdout); // print the url to stdout if xclip is not present
-	else
-		system("notify-send 'Upload complete'");
+
+	system("notify-send 'Upload complete'");
 
 	free(mem.buffer);
 	curl_formfree(firstitem);
