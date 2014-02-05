@@ -33,15 +33,20 @@ def auth_app
   tokens
 end
 
-def refresh_token(refresh_token)
+def refresh_token(tokens)
   imgur = Curl.post "https://api.imgur.com/oauth2/token", {
-    refresh_token: refresh_token,
+    refresh_token: tokens['refresh_token'],
     client_id:     CLIENT_ID,
     client_secret: CLIENT_SECRET,
     grant_type:    :refresh_token
   }
 
   response = JSON.parse(imgur.body_str)
+  if response['access_token']
+    tokens['access_token'] = response['access_token']
+    File.write(TOKEN_FILE, tokens.to_json)
+  end
+
   response['access_token']
 end
 
@@ -59,11 +64,15 @@ abort "Usage: #{$PROGRAM_NAME} <path/to/file.(png|jpg)> [scrot extra flag]" unle
 abort 'scrot not found' unless system("scrot #{ARGV[0]} #{ARGV[1]}")
 tokens = File.exists?(TOKEN_FILE) ? JSON.parse(File.read(TOKEN_FILE)) : auth_app
 
-link = upload_image(ARGV[0], tokens['access_token'])
-unless link
-  tokens['access_token'] = refresh_token(tokens['refresh_token'])
-  link = upload_image(ARGV[0], tokens['access_token'])
-  File.write(TOKEN_FILE, tokens.to_json)
+if Time.new - File.mtime(TOKEN_FILE) >= 3600
+  unless refresh_token(tokens)
+    system('notify-send -t 2000 "Upload error"')
+    exit 1 
+  end
+end
+
+unless link = upload_image(ARGV[0], tokens['access_token'])
+  refresh_token(tokens) && link = upload_image(ARGV[0], tokens['access_token'])
 end
 
 if link
