@@ -19,7 +19,7 @@ def upload_image(image_path, cid=CLIENT_ID):
         res = urllib.request.urlopen(req)
     except urllib.error.HTTPError as e:
         print("HTTP Error:", e.getcode(), e.reason)
-        return "Failed to upload image"
+        return None
     return json.loads(res.read().decode("utf-8"))['data']['link']
 
 def main():
@@ -37,7 +37,7 @@ def main():
         exit('scrot is not installed')
 
     link = upload_image(args.image)
-    if "Failed" in link:
+    if not link:
         call(["notify-send", "Upload error"])
     else:
         try:
