@@ -36,25 +36,12 @@ int main(int argc, char *argv[]) {
 	struct curl_slist *headers = NULL;
 	Mem_buffer mem = { NULL, 0 };
 	char cmd[CMDLEN], *url, *temp = NULL;
-	int status, n;
+	int status;
 
-	if (argc == 2)
-		n = snprintf(cmd, CMDLEN, "scrot %s", argv[1]);
-	else if (argc == 3)
-		n = snprintf(cmd, CMDLEN, "scrot %s %s", argv[1], argv[2]);
-	else {
-		fprintf(stderr, "Usage: %s <path/to/file.(png|jpg)> [scrot extra flag]\n", argv[0]);
+	if (argc != 2) {
+		fprintf(stderr, "Usage: %s <path/to/image.(png|jpg)>\n", argv[0]);
 		return EXIT_FAILURE;
 	}
-
-	if (n >= CMDLEN) {
-		fprintf(stderr, "Arguments length too long\n");
-		return EXIT_FAILURE;
-	}
-
-	status = system(cmd);
-	if (WEXITSTATUS(status) == 127)
-		return EXIT_FAILURE;
 
 	curl = curl_easy_init();
 	if (!curl)
@@ -83,10 +70,10 @@ int main(int argc, char *argv[]) {
 		temp = strstr(url, "</");
 
 	if (!temp) {
-		system("notify-send 'Upload failed'");
+		system("notify-send 'Upload error'");
 		return EXIT_FAILURE;
 	}
-	
+
 	*temp = '\0';
 	snprintf(cmd, CMDLEN, "echo -n %s | xclip -selection c", url);
 	status = system(cmd);

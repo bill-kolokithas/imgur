@@ -60,14 +60,12 @@ def upload_image(image, access_token)
   response['data']['link']
 end
 
-abort "Usage: #{$PROGRAM_NAME} <path/to/file.(png|jpg)> [scrot extra flag]" unless ARGV.length > 0
-abort 'scrot not found' unless system("scrot #{ARGV[0]} #{ARGV[1]}")
 tokens = File.exists?(TOKEN_FILE) ? JSON.parse(File.read(TOKEN_FILE)) : auth_app
 
 if Time.new - File.mtime(TOKEN_FILE) >= 3600
   unless refresh_token(tokens)
     system('notify-send -t 2000 "Upload error"')
-    exit 1 
+    exit 1
   end
 end
 
@@ -77,7 +75,7 @@ end
 
 if link
   Clipboard.copy link
-  system('notify-send -t 2000 "Upload complete"')
+  system('notify-send "Upload complete"')
 else
-  system('notify-send -t 2000 "Upload error"')
+  system('notify-send "Upload error"')
 end

@@ -12,16 +12,14 @@ def upload_image(image)
   imgur.headers['Authorization'] = "Client-ID #{CLIENT_ID}"
   imgur.http_post(Curl::PostField.file('image', image))
 
-  response = JSON.parse(imgur.body_str) 
+  response = JSON.parse(imgur.body_str)
   response['data']['link']
 end
-
-abort 'scrot not found' unless system("scrot #{ARGV[0]} #{ARGV[1]}")
 
 link = upload_image(ARGV[0])
 if link
   Clipboard.copy link
-  system('notify-send -t 2000 "Upload complete"')
+  system('notify-send "Upload complete"')
 else
-  system('notify-send -t 2000 "Upload error"')
+  system('notify-send "Upload error"')
 end

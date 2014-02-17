@@ -1,16 +1,17 @@
-Collection of programs to upload photos on imgur.
-They use scrot to take a picture, xclip to put the direct link on clipboard and libnotify to show a notification when done.
-All programs use v3 api and the ruby-oauth supports uploading photos to a user's album.
+Collection of scripts to upload photos on imgur.
+All scripts use xclip to put the direct link on clipboard and libnotify to show a notification when done.
+Images are uploaded anonymously using v3 api.
+ruby-oauth supports uploading photos to a user's album. (you have to run it from terminal the first time)
 
-curb gem required for ruby versions (curl bindings)
+C version requires curl headers and ruby needs the curl bindings provided by `curb` gem.
 
-Usage for all programs:
+Usage for all scripts
 -
-`./imgur_program <path/to/file.(png|jpg)> [scrot extra flag]` 
+`./imgur_script <path/to/file.(png|jpg)>`
 
-Example: (-s grabs selection or specific window)
+Example invocation using scrot
 -
-`./imgur.rb ~/imgur.png -s`
+`scrot -e 'imgur.rb $f'`
 
 Command to compile C program
 -

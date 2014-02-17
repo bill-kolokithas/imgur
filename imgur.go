@@ -22,20 +22,9 @@ type Data struct {
 
 func main() {
 
-	var err error
-
-	switch len(os.Args) {
-	case 2:
-		err = exec.Command("scrot", os.Args[1]).Run()
-	case 3:
-		err = exec.Command("scrot", os.Args[1], os.Args[2]).Run()
-	default:
-		fmt.Printf("Usage: %s <path/to/file.(png|jpg)> [scrot extra flag]\n", os.Args[0])
+	if len(os.Args) != 2 {
+		fmt.Printf("Usage: %s <path/to/image.(png|jpg)>\n", os.Args[0])
 		os.Exit(1)
-	}
-
-	if err != nil {
-		log.Fatal(err)
 	}
 
 	buffer := new(bytes.Buffer)
@@ -76,7 +65,7 @@ func main() {
 	}
 
 	if jsonResponse.Data.Link == "" {
-		exec.Command("notify-send", "Upload failed").Run()
+		exec.Command("notify-send", "Upload error").Run()
 		os.Exit(1)
 	}
 
