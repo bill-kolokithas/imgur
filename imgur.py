@@ -37,7 +37,6 @@ def main():
             print(link, end="")
         else:
             p.communicate(input=bytes(link, "utf-8"))
-            p.wait()
         finally:
             call(["notify-send", "Upload complete"])
 
