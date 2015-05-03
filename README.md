@@ -3,7 +3,7 @@ All scripts use xclip to put the direct link on clipboard and libnotify to show 
 Images are uploaded anonymously using v3 api.
 ruby-oauth supports uploading photos to a user's album. (you have to run it from terminal the first time)
 
-C version requires curl headers and ruby needs the curl bindings provided by `curb` gem.
+C version requires curl headers, ruby needs the curl bindings provided by `curb` gem, perl needs the curl bindings provided by `WWW::Curl` CPAN module.
 
 Usage for all scripts
 -
